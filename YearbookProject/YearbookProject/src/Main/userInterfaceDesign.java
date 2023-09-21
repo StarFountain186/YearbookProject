@@ -106,7 +106,9 @@ public class userInterfaceDesign {
 		     //Handle exception
 		}
 		
-//		some aiden magic ig
+/*
+		The code below will create a instance of this class and run it.
+ */
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -126,18 +128,18 @@ public class userInterfaceDesign {
 		try {
 			initialize();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Initialize the entire application backend
 	 */
 	private void initialize() throws IOException {
+//		Creates/reads the config.properties file.
 		properties();
 		
-//		school connection
+//		Attempts to establish a connection to the mysql database set in the config.properties file.
         try {
 			con = DriverManager.getConnection("jdbc:mysql://" + prop.getProperty("IP") + ":" + prop.getProperty("Port") + "/" + prop.getProperty("Database"), prop.getProperty("User_Name") + "", prop.getProperty("Password") + "");
 		} catch (SQLException e1) {
@@ -200,6 +202,8 @@ public class userInterfaceDesign {
 		giveButton.setOpaque(false);
 		giveButton.setBorder(javax.swing.BorderFactory.createEmptyBorder());
 		frmYearbookApplication.getContentPane().add(giveButton);
+//		This will be the action when the button is clicked/pressed.
+
 		
 		JFormattedTextField giveBG = new JFormattedTextField();
 		giveBG.setBounds(972, 401, 121, 25);
@@ -242,8 +246,10 @@ public class userInterfaceDesign {
 		studentIDInput.setBounds(216, 371, 223, 25);
 		studentIDInput.setBorder(javax.swing.BorderFactory.createEmptyBorder());
 		frmYearbookApplication.getContentPane().add(studentIDInput);
+//		Limits the amount of characters allowed in the text box to number below.
 		studentIDInput.setDocument(new JTextFieldLimit(7));
 		studentIDInput.addKeyListener(new KeyListener() {
+//			This will submit the text in the text box when enter is typed.
 			@Override
 			public void keyTyped(KeyEvent e) {
 				if(e.getKeyCode() == 10) {
@@ -254,6 +260,7 @@ public class userInterfaceDesign {
 			@Override
 			public void keyPressed(KeyEvent e) {}
 
+//			This will auto submit text in the text box when 7 characters are typed.
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if(studentIDInput.getText().length() == 7){
@@ -312,8 +319,8 @@ public class userInterfaceDesign {
 		indicatorInnerOutline.setBackground(lightColor);
 		frmYearbookApplication.getContentPane().add(indicatorInnerOutline);
 		
-		
-		//THIS HERE IS WHAT INDICATES IF THEY CAN PICK UP THE YEARBOOK WITH JUST A GLANCE
+
+//		THIS HERE IS WHAT INDICATES IF THEY CAN PICK UP THE YEARBOOK WITH JUST A GLANCE
 //		IF THEY CAN SET THE Background COLOR GREEN (else RED)
 		yearbookIndicator = new JPanel();
 		yearbookIndicator.setBackground(successColor);
@@ -356,37 +363,42 @@ public class userInterfaceDesign {
 	}
 	
 	private void database(){
-//        canGiveYearbookLabel.setText("");
-//        pictureLabel.setText("");
-//        pictureLabel.setIcon(null);
+//      This method handles most of the backend of the Program.
+
         try{
-        	//At home connection
-        	//Connection con = DriverManager.getConnection("jdbc:mysql://192.168.1.25:4040/data", "Java","?yUd+GTMc4-M]h`@yLC(y+:j");
-        	
-        	//on computer connection regardless of current network
-            //Connection con = DriverManager.getConnection("jdbc:mysql://localhost:4040/data", "Java", "?yUd+GTMc4-M]h`@yLC(y+:j");
-        	
+//        	Create a SQL stament that will execute SQL commands as needed.
             Statement statement = con.createStatement();
+
+//			Allows us to get the querey results from the database.
             ResultSet rs = statement.executeQuery("Select * from userdata where ID = '" + studentIDInput.getText() + "'");
 
+//			This will get the result from the result set.
             if(rs.next()){
+//				The next 5 lines are just getting the data from the columns into jlabels.
                 studentName.setText(rs.getString("Name"));
                 studId.setText("" + rs.getInt("ID"));
                 hasReceivedYearbook.setText(rs.getBoolean("Collected") +"");
                 hasYearbookPaid.setText(rs.getBoolean("Paid") + "");
                 hasFees.setText(rs.getBoolean("Fees") + "");
+
+//				Will change the color of the text if has already picked up year book or not.
                 if(hasReceivedYearbook.getText().equalsIgnoreCase("true")){
                     hasReceivedYearbook.setForeground(failColor);
                 }else{
                     hasReceivedYearbook.setForeground(successColor);
                 }
 
+//				Will change the color of the text if has or hasn't purcahsed a yearbook.
                 if(hasYearbookPaid.getText().equalsIgnoreCase("true")){
                     hasYearbookPaid.setForeground(successColor);
                 }else{
                     hasYearbookPaid.setForeground(failColor);
                 }
+
+//				From the result set will get the has fees boolean.
                 boolean fees = rs.getBoolean("Fees");
+
+//				Will change the color of the text if has or doesn't have any fees.
                 if(fees){
                     hasFees.setForeground(failColor);
                 }else{
@@ -395,20 +407,21 @@ public class userInterfaceDesign {
                 
                 hasFees.setText(fees + "");
 
+//				Will set yearbook indicator green if all prvious colors are green
                 if(hasYearbookPaid.getForeground() == successColor && hasReceivedYearbook.getForeground() == successColor && hasFees.getForeground() == successColor){
                 	
                    //canGiveYearbookLabel.setText("You can give them a yearbook");
                 	yearbookIndicator.setBackground(successColor);
                     //canGiveYearbookLabel.setForeground(Color.green);
-                    PreparedStatement ps = con.prepareStatement("update data.userdata set Collected = ? where ID = ? ");
+                   /* PreparedStatement ps = con.prepareStatement("update data.userdata set Collected = ? where ID = ? ");
                     ps.setBoolean(1,true);
                     ps.setInt(2, Integer.parseInt(studentIDInput.getText()));
-                    ps.executeUpdate();
+                    ps.executeUpdate();*/
                     
                 }else{
                 	yearbookIndicator.setBackground(failColor);
                 }
-                
+
             }else{
             	//IN the event that they number or thing they entered is not in the database
                 studentName.setText("Doesn't exist in the database.");
@@ -422,12 +435,14 @@ public class userInterfaceDesign {
                 hasFees.setForeground(failColor);
                 yearbookIndicator.setBackground(failColor);
             }
-            
+
+//			Rests text box, repaints UI, cloeses the result set and statement.
             studentIDInput.setText("");
             frmYearbookApplication.repaint();
             rs.close();
             statement.close();
         }catch(SQLException ex){
+//			Incase the application can't connect to the database
         	studentName.setText("Couldn't connect to database");
             studId.setText("Couldn't connect to database");
             hasReceivedYearbook.setText("Couldn't connect to database");
@@ -439,6 +454,7 @@ public class userInterfaceDesign {
             hasFees.setForeground(failColor);
             yearbookIndicator.setBackground(failColor);
         }
+//		Forces the textbox to be selected
         studentIDInput.grabFocus();
     }
 	
