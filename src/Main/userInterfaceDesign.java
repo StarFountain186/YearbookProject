@@ -2,15 +2,12 @@ package Main;
 
 import java.awt.EventQueue;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import javax.swing.*;
 
 import java.awt.Image;
 
-import javax.swing.JPanel;
 import java.awt.Color;
 
-import javax.swing.ImageIcon;
 import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -19,21 +16,15 @@ import javax.swing.text.PlainDocument;
 import java.awt.Font;
 import java.awt.FontFormatException;
 
-import javax.swing.JButton;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Objects;
 import java.util.Properties;
-
-import javax.swing.SwingConstants;
-import javax.swing.JFormattedTextField;
 
 import java.awt.Component;
 import java.awt.Graphics;
@@ -52,8 +43,8 @@ public class userInterfaceDesign {
 	public String schoolNameString = "HERRIMAN HIGH";
 	
 //	SAVE YOUR IMAGES AS PRIMARY IMAGE & SECONDARY IMAGE
-	public final String primaryImageAddress = "Images/primaryImage.png";
-	public final String secondaryImageAddress = "Images/secondaryImage.png";
+	public final URL primaryImageAddress = getClass().getResource("Images/primaryImage.png");
+	public final URL secondaryImageAddress = getClass().getResource("Images/secondaryImage.png");
 	
 	public Color primaryColor = new Color(39, 68, 114);
 	public Color secondaryColor = new Color(154, 38, 57);
@@ -82,23 +73,6 @@ public class userInterfaceDesign {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-//		INITIALIZE CUSTOM FONTS
-		try {
-		     titleFont = Font.createFont(Font.TRUETYPE_FONT, new File("Fonts/Raleway-Black.ttf"));
-		     titleFont = titleFont.deriveFont(Font.BOLD, 40f);
-		     
-		     subtitleFont = Font.createFont(Font.TRUETYPE_FONT, new File("Fonts/Aleo_Bold.ttf"));
-		     subtitleFont = subtitleFont.deriveFont(Font.BOLD, 30f);
-		     
-		     lightFont = Font.createFont(Font.TRUETYPE_FONT, new File("Fonts/Montserrat.ttf"));
-		     lightFont = lightFont.deriveFont(Font.BOLD, 14f);
-//		     
-		     lightItalicFont = Font.createFont(Font.TRUETYPE_FONT, new File("Fonts/Montserrat.ttf"));
-		     lightItalicFont = lightItalicFont.deriveFont(Font.BOLD | Font.ITALIC, 14f);
-		} catch (IOException|FontFormatException ignored) {
-		     //Handle exception
-		}
-		
 /*
 		The code below will create a instance of this class and run it.
  */
@@ -134,8 +108,27 @@ public class userInterfaceDesign {
         try {
 			con = DriverManager.getConnection("jdbc:mysql://" + prop.getProperty("IP") + ":" + prop.getProperty("Port") + "/" + prop.getProperty("Database"), prop.getProperty("User_Name") + "", prop.getProperty("Password") + "");
 		} catch (SQLException ignored) {
+			//TODO Add exception to show that hasn't connected to database.
 		}
-//		
+
+//		INITIALIZE CUSTOM FONTS
+		try {
+
+			titleFont = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(getClass().getResourceAsStream("Fonts/Raleway-Black.ttf")));
+			titleFont = titleFont.deriveFont(Font.BOLD, 40f);
+
+			subtitleFont = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(getClass().getResourceAsStream("Fonts/Aleo_Bold.ttf")));
+			subtitleFont = subtitleFont.deriveFont(Font.BOLD, 30f);
+
+			lightFont = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(getClass().getResourceAsStream("Fonts/Montserrat.ttf")));
+			lightFont = lightFont.deriveFont(Font.BOLD, 14f);
+
+			lightItalicFont = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(getClass().getResourceAsStream("Fonts/Montserrat.ttf")));
+			lightItalicFont = lightItalicFont.deriveFont(Font.BOLD | Font.ITALIC, 14f);
+		} catch (IOException|FontFormatException ignored) {
+			//IGNORED
+		}
+
 		frmYearbookApplication = new JFrame();
 		frmYearbookApplication.getContentPane().setBackground(new Color(255, 255, 255));
 		frmYearbookApplication.getContentPane().setLayout(null);
@@ -167,6 +160,7 @@ public class userInterfaceDesign {
 		frmYearbookApplication.getContentPane().add(hasYearbookPaid);
 
 //		This adds the primary image on the left
+		assert primaryImageAddress != null;
 		ImageIcon iconLogo = new ImageIcon(primaryImageAddress);
 		Image image = iconLogo.getImage(); // transform it
 		Image newimg = image.getScaledInstance(250, 250,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
@@ -179,6 +173,7 @@ public class userInterfaceDesign {
 		
 		
 //		THIS IS THE RIGHT IMAGE
+		assert secondaryImageAddress != null;
 		iconLogo = new ImageIcon(secondaryImageAddress);
 		image = iconLogo.getImage(); // transform it
 		newimg = image.getScaledInstance(120, 120,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
@@ -438,6 +433,7 @@ public class userInterfaceDesign {
             rs.close();
             statement.close();
         }catch(SQLException ex){
+
 //			Incase the application can't connect to the database
         	studentName.setText("Couldn't connect to database");
             studId.setText("Couldn't connect to database");
@@ -450,6 +446,7 @@ public class userInterfaceDesign {
             hasFees.setForeground(failColor);
             yearbookIndicator.setBackground(failColor);
         }
+
 //		Forces the textbox to be selected
         studentIDInput.grabFocus();
     }
@@ -481,8 +478,8 @@ public class userInterfaceDesign {
 
 class RoundedBorder implements Border {
 	
-	private int radius;
-	private Color c;
+	private final int radius;
+	private final Color c;
 	
 	RoundedBorder(int radius, Color fillColor) {
 		this.radius = radius;
@@ -506,11 +503,11 @@ class RoundedBorder implements Border {
 }
 
 class JTextFieldLimit extends PlainDocument{
-	private int limit;
+	private final int limit;
 	
-	JTextFieldLimit(int limt){
+	JTextFieldLimit(int limit){
 		super();
-		this.limit = limt;
+		this.limit = limit;
 	}
 	
 	public void insetString(int offset, String str, AttributeSet attr) throws BadLocationException {
